@@ -1,0 +1,109 @@
+---
+title: "Bike data & Linear regression"
+format: html
+editor: visual
+---
+
+## Load packages
+
+```{r}
+setwd("C:/Users/Horri_PC_5/Desktop/IBEP/CodingIBEP/RepoExc")
+suppressMessages(library(tidyverse))
+suppressMessages(library(rsample))
+suppressMessages(library(broom))
+suppressMessages(library(equatiomatic))
+library(openintro)
+library(ggplot2)
+
+load("bike.RData")
+ls()
+```
+
+```{r}
+View(bike)
+```
+
+```{r}
+ggplot(bike, aes(x = tempC, y = total)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal()
+```
+
+## Fit linear regression model with `lm()`
+
+You need to provide the function lm with two arguments. The first one should be a formula and the other the dataset. Formulas are written in the following form:
+
+**`y-variable ~ x-variables`**. Between each x-variable there should be a `+`. For instance:
+
+```{r}
+
+
+
+```
+
+If I want to add an interaction term between the variables area and cooling I separate them with a `*` instead of a `+`. Or alternatively add a third variable `area:cooling.`
+
+```{r}
+
+
+
+```
+
+### Print summary of the fitted regression with `summary()`
+
+If you want to see a summary about the model you can use the function summary() with the regression model as the argument. Here below I decide to save the regression model as `model1`
+
+```{r}
+
+```
+
+### Print summary measures of the fit of the model with `glance()`
+
+I can also get some summary statistics about the model with the function `glance()`.
+
+```{r}
+glance(m1)
+
+
+
+
+models <- list(m1, m2, m3, m4, m5,m6)
+model_names <- paste0("Model_", 1:6)
+
+
+summary_table <- purrr::map_df(models, ~glance(.x), .id = "model") %>%
+  mutate(model = model_names,
+         formula = map_chr(models, ~deparse(formula(.x))))
+
+
+summary_table %>%
+  select(formula,  r.squared, adj.r.squared)
+
+```
+
+### Residual analysis with `plot()`
+
+Finally you can get residual analysis plots with the function plot().
+
+```{r}
+plot(m2)
+```
+
+If you only want one of the plots you can specify which with the argument `which.`
+
+```{r}
+plot(m2, which=1)
+
+```
+
+### Derive predictions from a model with `predict()`
+
+In order to use you regression model for prediction you can use the function `predict().` You need two arguments the first is your regression `model`, the second is the `data` you want to make predictions for. More specifically the `data` need to be a data.frame or tibble and include the explanatory variables used in the regression model. This can be used for one observation or an entire dataset.
+
+Let's say I want to use the regression model to predict the price of a house that has an area of 2500 square feet and central cooling, then I can use the following code:
+
+```{r}
+datanew<-tibble(area=2500,cooling="central")
+predict(m2,datanew)
+```

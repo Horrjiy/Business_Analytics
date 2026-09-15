@@ -1,0 +1,263 @@
+---
+title: "Plot for presentation about CharlesBookClub.RData"
+format: pdf
+editor: visual
+---
+
+```{r, load libraries, load r data}
+#| include: TRUE
+#| echo: FALSE
+# see more about chunk options, such as include and echo,  at https://quarto.org/docs/computations/execution-options.html
+
+library(tidyverse)
+
+qmd_dir <- if (!is.null(knitr::current_input())) {
+  dirname(normalizePath(knitr::current_input(dir = TRUE), winslash = "/"))
+} else {
+  "c:/Users/Horri_PC_5/Desktop/IBEP/CodingIBEP/RepoExc"
+}
+
+rdata_path <- file.path(qmd_dir, "CharlesBookClub.RData")
+load(rdata_path)
+```
+
+
+Take a look at the the data:
+
+```{r, first 6 rows}
+head(book)
+glimpse(book)
+```
+
+Get a glimpse of the data:
+
+```{r}
+View(book)
+```
+
+Continue working with the data by adding new code chunks via menu Code/Insert chunk, writing the code, executing the written code or rendering the file.
+
+```{r, working with data}
+#| include: TRUE
+#| echo: FALSE
+gender <- book$Gender
+
+male <- 0
+female <- 0
+for (i in seq_along(gender)) 
+{
+    if (gender[i] == 0) {
+       male <- male + 1
+    } else {
+       female <- female + 1
+    }
+}
+cat("m: ", male, "\n")
+cat("f: ", female, "\n")
+print((male / female))
+
+florence <- book$Florence
+count <- 0
+countandf <- 0
+for (i in seq_along(florence)) 
+{
+    if(florence[i] == 1)
+    {
+        count <- count + 1
+        if(gender[i] == 1)
+            countandf <- countandf + 1
+    }
+}
+cat("have bought: ", count, "\n")
+cat("f: ", female, "\n")
+cat("have bought and f: ", countandf, "\n")
+print(countandf / female)
+```
+
+```{r, averages and median}
+
+summary_df <- data.frame(
+  group = c("Florence buyers", "Non-buyers"),
+  avg_M = c(
+    mean(book$M[book$Florence == 1]),
+    mean(book$M[book$Florence == 0])
+  ),
+  med_M = c(
+    median(book$M[book$Florence == 1]),
+    median(book$M[book$Florence == 0])
+  ),
+  avg_F = c(
+    mean(book$F[book$Florence == 1]),
+    mean(book$F[book$Florence == 0])
+  ),
+  med_F = c(
+    median(book$F[book$Florence == 1]),
+    median(book$F[book$Florence == 0])
+  ),
+  avg_R = c(
+    mean(book$R[book$Florence == 1]),
+    mean(book$R[book$Florence == 0])
+  ),
+  med_R = c(
+    median(book$R[book$Florence == 1]),
+    median(book$R[book$Florence == 0])
+  )
+)
+
+print(summary_df)
+
+```
+
+```{r, export plot with x: F; y: M}
+#| include: TRUE
+#| echo: FALSE
+
+plot_df <- tibble(
+  F = book$F,
+  R = book$R,
+  Flo = factor(book$Florence, levels = c(0, 1), labels = c("Non-buyer", "Florence buyer"))
+)
+
+# build summary values for the bar chart
+bar_df <- tibble(
+  group = factor(c("non-buyer", "buyer"), levels = c("non-buyer", "buyer")),
+  avg_R = c(
+    mean(book$R[book$Florence == 0]),
+    mean(book$R[book$Florence == 1])
+  ),
+  avg_F = c(
+    mean(book$F[book$Florence == 0]),
+    mean(book$F[book$Florence == 1])
+  )
+)
+
+# reshape for plotting
+bar_long <- bar_df %>%
+  pivot_longer(
+    cols = c(avg_R, avg_F),
+    names_to = "measure",
+    values_to = "value"
+  ) %>%
+  mutate(
+    measure = factor(
+      measure,
+      levels = c("avg_R", "avg_F"),
+      labels = c("Average recency (R)", "Average frequency (F)")
+    )
+  )
+
+bar_long %>%
+  ggplot(aes(x = measure, y = value, fill = group)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(
+    aes(label = round(value, 2)),
+    position = position_dodge(width = 0.8),
+    vjust = -0.4,
+    size = 3.5
+  ) +
+  geom_text(
+    data = bar_long %>% distinct(measure, group) %>% arrange(measure, group),
+    aes(x = measure, y = 0, label = group, group = group),
+    position = position_dodge(width = 0.8),
+    inherit.aes = FALSE,
+    vjust = 1.6,
+    size = 3.2,
+    color = "black"
+  ) +
+  scale_fill_manual(
+    values = c("non-buyer" = "gray70", "buyer" = "#1f77b4"),
+    labels = c("non-buyer", "buyer")
+  ) +
+  labs(
+    x = "Variables",
+    y = "Value",
+    fill = "Group",
+    title = "Comparison of buyers and non-buyers"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 20, hjust = 1),
+    legend.position = "none"
+  ) +
+  coord_cartesian(clip = "off")
+```
+
+
+HERE MEDIAN
+```{r, export plot with x: F; y: M}
+#| include: TRUE
+#| echo: FALSE
+
+plot_df <- tibble(
+  F = book$F,
+  R = book$R,
+  Flo = factor(book$Florence, levels = c(0, 1), labels = c("Non-buyer", "Florence buyer"))
+)
+
+# build summary values for the bar chart
+bar_df <- tibble(
+  group = factor(c("non-buyer", "buyer"), levels = c("non-buyer", "buyer")),
+  med_R = c(
+    median(book$R[book$Florence == 0]),
+    median(book$R[book$Florence == 1])
+  ),
+  med_F = c(
+    median(book$F[book$Florence == 0]),
+    median(book$F[book$Florence == 1])
+  )
+)
+
+# reshape for plotting
+bar_long <- bar_df %>%
+  pivot_longer(
+    cols = c(med_R, med_F),
+    names_to = "measure",
+    values_to = "value"
+  ) %>%
+  mutate(
+    measure = factor(
+      measure,
+      levels = c("med_R", "med_F"),
+      labels = c("Median recency (R)", "Median frequency (F)")
+    )
+  )
+
+bar_long %>%
+  ggplot(aes(x = measure, y = value, fill = group)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(
+    aes(label = round(value, 2)),
+    position = position_dodge(width = 0.8),
+    vjust = -0.4,
+    size = 3.5
+  ) +
+  geom_text(
+    data = bar_long %>% distinct(measure, group) %>% arrange(measure, group),
+    aes(x = measure, y = 0, label = group, group = group),
+    position = position_dodge(width = 0.8),
+    inherit.aes = FALSE,
+    vjust = 1.6,
+    size = 3.2,
+    color = "black"
+  ) +
+  scale_fill_manual(
+    values = c("non-buyer" = "gray70", "buyer" = "#1f77b4"),
+    labels = c("non-buyer", "buyer")
+  ) +
+  labs(
+    x = "Variables",
+    y = "Value",
+    fill = "Group",
+    title = "Comparison of buyers and non-buyers (median)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 20, hjust = 1),
+    legend.position = "none"
+  )
+  coord_cartesian(clip = "off")
+```
