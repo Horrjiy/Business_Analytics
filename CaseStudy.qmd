@@ -1,0 +1,82 @@
+---
+title: "My Document"
+author: "Mischa Pöplow"
+lang: en
+editor: visual
+params:
+  year: 2026
+  region: "Europe"
+format: html
+---
+
+# Case Study
+Business Analytics HT26 - Umeå University
+
+Group 17:
+David Gonzalez Zazo
+Enrico Franco Conde
+Menusha Prishani Wijerathna
+Mischa Leon Pöplow
+
+## Introduction
+
+For this analysis, we will use the `economics` dataset from `ggplot2`
+https://ggplot2.tidyverse.org/reference/economics.html
+and `unrate` from the US Federal Reserve Bank of St. Louis
+https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE
+
+
+## Setup
+
+OPTIONAL: If needed, set your working path
+```{r, example working path}
+setwd("C:/Users/Horri_PC_5/Desktop/IBEP/CodingIBEP")
+```
+```{r, custom working path}
+setwd("ADD_PATH")
+```
+
+OPTIONAL: Install packages if needed
+```{r, packages}
+install.packages("ggplot2")
+install.packages("dplyr")
+```
+
+Load libraries and 
+```{r, libraries}
+library(ggplot2)
+library(dplyr)
+library(readr)
+```
+
+download unemployment rate
+```{r, unemployment}
+fedunrate <- read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE")
+
+fedunrate <- fedunrate |>
+  rename(date = observation_date) |>
+  filter(date >= as.Date("1967-07-01"),
+         date <= as.Date("2015-04-01"))
+
+economicsWithUnrate <- economics |>
+  left_join(fedunrate, by = "date")
+```
+
+## Overview
+
+```{r, }
+glimpse(economics)
+View(economicsWithUnrate)
+```
+
+## Plots for 5. Descriptive analytics
+
+```{r, }
+ggplot(data = economicsWithUnrate, mapping = aes(x = date, y = "Unemployment rate and savings rate")) + geom_path(aes(y = UNRATE), color = "red") + geom_path(aes(y = psavert), color = "blue") 
+```
+
+## Plots for 7. 
+
+```{r, }
+
+```
