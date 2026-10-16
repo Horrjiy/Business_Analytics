@@ -13,10 +13,6 @@ format: html
 Business Analytics HT26 - Umeå University
 
 Group 17:
-David Gonzalez Zazo
-Enrico Franco Conde
-Menusha Prishani Wijerathna
-Mischa Leon Pöplow
 
 ## Introduction
 
