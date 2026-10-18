@@ -200,3 +200,11 @@ exportModel1 <- ggplot(economicsWithUnrate, aes(x = UNRATE, y = psavert)) +
   )
 exportModel1
 ```
+
+```{r, export models}
+ggsave(filename = "7model1.png", plot = exportModel1, 
+  width = 8,
+  height = 5,
+  units = "in",
+  dpi = 300)
+```
