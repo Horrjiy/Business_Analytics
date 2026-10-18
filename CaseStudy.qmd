@@ -10,27 +10,21 @@ format: html
 ---
 
 # Case Study
+
 Business Analytics HT26 - Umeå University
 
 "How do changes in the US unemployment rate influence the household savings rate, and what do the relationships imply for the resilience of household spending?"
 
-Group 17:
-+ Enrico Franco Conde
-+ Mischa Leon Pöplow
-+ Menusha Prishani Wijerathna
-+ David Gonzalez Zazo
+Group 17: + Enrico Franco Conde + Mischa Leon Pöplow + Menusha Prishani Wijerathna + David Gonzalez Zazo
 
 ## Introduction
 
-For this analysis, we will use the `economics` dataset from `ggplot2`
-https://ggplot2.tidyverse.org/reference/economics.html
-and `unrate` from the US Federal Reserve Bank of St. Louis
-https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE
-
+For this analysis, we will use the `economics` dataset from `ggplot2` https://ggplot2.tidyverse.org/reference/economics.html and `unrate` from the US Federal Reserve Bank of St. Louis https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE
 
 ## Setup
 
 OPTIONAL: If needed, set your working path
+
 ```{r, example working path}
 setwd("C:/Users/Horri_PC_5/Desktop/IBEP/CodingIBEP")
 ```
@@ -40,12 +34,14 @@ setwd("C:/Users/Horri_PC_5/Desktop/IBEP/CodingIBEP")
 ```
 
 OPTIONAL: Install packages if needed
+
 ```{r, packages}
 ## install.packages("ggplot2")
 ## install.packages("dplyr")
 ```
 
-Load libraries and 
+Load libraries and
+
 ```{r, libraries}
 library(ggplot2)
 library(dplyr)
@@ -53,6 +49,7 @@ library(readr)
 ```
 
 Download and read unemployment rate
+
 ```{r, import unemployment}
 fedunrate <- read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE")
 
@@ -97,6 +94,7 @@ exportLinechart <- ggplot(data = economicsWithUnrate, mapping = aes(x = date, y 
 ```
 
 Export the plots as .png
+
 ```{r, export}
 ggsave(filename = "5boxplot.png", plot = exportBoxplot, 
   width = 6,
@@ -111,8 +109,20 @@ ggsave(filename = "5linechart.png", plot = exportLinechart,
   dpi = 300)
 ```
 
-## Plots for 7. 
+## Plots for 7.
 
-```{r, }
-
+```{r, basic linear model}
+modelBase <- lm(psavert ~ UNRATE, data = economicsWithUnrate)
+summary(modelBase)
 ```
+
+```{r, linear model plot}
+modelBase <- lm(psavert ~ UNRATE, data = economicsWithUnrate)
+
+ggplot(economicsWithUnrate, aes(x = UNRATE, y = psavert)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+- **H0:** The slope is zero (`β1 = 0`); there is no linear association between unemployment and the personal saving rate.
+- **H1:** The slope is not zero (`β1 ≠ 0`); there is a linear association between unemployment and the personal saving rate.
