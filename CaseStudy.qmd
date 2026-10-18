@@ -174,12 +174,10 @@ economicsWithUnrate |>
 
 ```{r, basic linear model}
 model1 <- lm(psavert ~ UNRATE, data = economicsWithUnrate)
-summary(modelBase)
+summary(model1)
 ```
 
 ```{r, linear model plot}
-model1 <- lm(psavert ~ UNRATE, data = economicsWithUnrate)
-
 exportModel1 <- ggplot(economicsWithUnrate, aes(x = UNRATE, y = psavert)) +
   geom_point(color = "#2A9D8F", alpha = 0.55, size = 2) +
   geom_smooth(
@@ -201,49 +199,4 @@ exportModel1 <- ggplot(economicsWithUnrate, aes(x = UNRATE, y = psavert)) +
     panel.grid.minor = element_blank()
   )
 exportModel1
-```
-
-```{r, multiple linear model}
-model2 <- lm(psavert ~ UNRATE + uempmed, data = economicsWithUnrate)
-summary(modelBase)
-```
-
-```{r, multiple linear model plot}
-model1 <- lm(psavert ~ UNRATE, data = economicsWithUnrate)
-
-exportModel2 <- ggplot(economicsWithUnrate, aes(x = UNRATE, y = psavert + uempmed)) +
-  geom_point(color = "#2A9D8F", alpha = 0.55, size = 2) +
-  geom_smooth(
-    method = "lm",
-    se = 0,
-    color = "#E76F51",
-    fill = "#F4A261",
-    linewidth = 1.2,
-    alpha = 0.2
-  ) +
-  labs(
-    title = "Unemployment and Personal Savings",
-    x = "Unemployment rate (%)",
-    y = "Personal savings rate (%)"
-  ) +
-  theme_minimal(base_size = 13) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
-exportModel2
-```
-
-```{r, export models}
-ggsave(filename = "7model1.png", plot = exportModel1, 
-  width = 4,
-  height = 5,
-  units = "in",
-  dpi = 300)
-
-ggsave(filename = "7model2.png", plot = exportModel2, 
-  width = 8,
-  height = 5,
-  units = "in",
-  dpi = 300)
 ```
