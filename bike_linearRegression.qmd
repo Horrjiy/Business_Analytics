@@ -26,6 +26,7 @@ View(bike)
 # TASKS:
 
 ## Draw a scatter plot with regression line
+
 ```{r, plot}
 ggplot(bike, aes(x = tempC, y = total)) +
   geom_point() +
@@ -34,7 +35,9 @@ ggplot(bike, aes(x = tempC, y = total)) +
 ```
 
 ## What is the estimated model?
+
 Fit linear regression model with `lm()`
+
 ```{r, find intercept and slope}
 x <- bike$tempC
 y <- bike$total
@@ -43,16 +46,14 @@ model <- lm(y ~ x, data = bike)
 model
 ```
 
-y = β0 + β1x
-y = 1215 + 162x
+y = β0 + β1x y = 1215 + 162x
 
 ## Interpret the slope and the intercept in context of the data
 
-Statistically speaking, at 0°C there will be 1215 bikes rented out.
-Practically, this is possible but not super likely. 
-=> Baware of extrapolation
+Statistically speaking, at 0°C there will be 1215 bikes rented out. Practically, this is possible but not super likely. =\> Baware of extrapolation
 
 ## Determine and interpret R^2^
+
 ```{r, residuals}
 res <- residuals(model)
 write.table(res, "res2.txt", row.names = FALSE, col.names = FALSE)
@@ -62,25 +63,23 @@ write.table(res2, "res.txt", row.names = FALSE, col.names = FALSE)
 
 summary(model)
 ```
-The summary gives out the the multiple R-squared 0.3937.
-This is basically the R², as there is only one predictor.
-R² gives the strength of correlation, with 0 = no correlation; and 1 = perfect fit.
-This means we have, with 0.3937, the correlation is rather weak.
-That could be because other factors, like weather, weekday, and more can have an influence on the number of rented bikes. There is no causation proven!
-"39% of the change in rented bikes correlates with the change of the temperature"
 
+The summary gives out the the multiple R-squared 0.3937. This is basically the R², as there is only one predictor. R² gives the strength of correlation, with 0 = no correlation; and 1 = perfect fit. This means we have, with 0.3937, the correlation is rather weak. That could be because other factors, like weather, weekday, and more can have an influence on the number of rented bikes. There is no causation proven! "39% of the change in rented bikes correlates with the change of the temperature"
 
 If I want to add an interaction term between the variables area and cooling I separate them with a `*` instead of a `+`. Or alternatively add a third variable `area:cooling.`
 
 ## Is *temperature* or *perceived temperature* a better predictor for bike rentals? Explain your reasoning
+
 ```{r}
 feelx <- bike$feeltempC
 feelmodel <- lm(y ~ feelx, data = bike)
 summary(feelmodel)
 ```
-R² is 0.3982, which is a little higher than real tempC. -> slightly stronger correlation.
+
+R² is 0.3982, which is a little higher than real tempC. -\> slightly stronger correlation.
 
 ## Print summary measures of the fit of the model with `glance()` and get summary statistics about the model.
+
 ```{r}
 glance(model)
 

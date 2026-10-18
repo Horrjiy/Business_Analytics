@@ -21,7 +21,6 @@ rdata_path <- file.path(qmd_dir, "CharlesBookClub.RData")
 load(rdata_path)
 ```
 
-
 Take a look at the the data:
 
 ```{r, first 6 rows}
@@ -184,8 +183,8 @@ bar_long %>%
   coord_cartesian(clip = "off")
 ```
 
-
 HERE MEDIAN
+
 ```{r, export plot with x: F; y: M}
 #| include: TRUE
 #| echo: FALSE
