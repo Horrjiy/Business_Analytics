@@ -13,9 +13,7 @@ format: html
 
 Business Analytics HT26 - Umeå University
 
-"How do changes in the US unemployment rate influence the household savings rate, and what do the relationships imply for the resilience of household spending?"
-
-Group 17:
+"How do changes in the US unemployment rate influence the household savings rate" Group 17:
 
 - Enrico Franco Conde
 
@@ -27,7 +25,21 @@ Group 17:
 
 ## Introduction
 
-For this analysis, we will use the `economics` dataset from `ggplot2` https://ggplot2.tidyverse.org/reference/economics.html and `unrate` from the US Federal Reserve Bank of St. Louis https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE
+For this analysis, we will use the `economics` dataset from `ggplot2` https://ggplot2.tidyverse.org/reference/economics.html and `fedunrate` from the US Federal Reserve Bank of St. Louis https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE
+
+The dataset will be merged into the dataset `economicsWithUnrate`. We will work with two variables:\
+`psavert` is the personal savings rate in the USA, recorded monthly\
+`UNRATE` is the unemployment rate in the USA, recorded monthly\
+
+This file includes:
+
+1.  Setup: Steps for preparaing your workspace, some are optional. There you also have to download the needed dataset from the US fed.
+
+2.   Overview: Different summaries of the data
+
+3.  Plots for 5. Descriptive Analysis
+
+4.  Linear regression model for 7. Model Analysis
 
 ## Setup
 
@@ -41,7 +53,7 @@ setwd("C:/Users/Horri_PC_5/Desktop/IBEP/CodingIBEP/RepoExc")
 ## setwd("ADD_PATH")
 ```
 
-OPTIONAL: Install packages if needed
+OPTIONAL: Install packages if needed:
 
 ```{r, packages}
 ## install.packages("ggplot2")
@@ -49,7 +61,7 @@ OPTIONAL: Install packages if needed
 ## install.packages("gridExtra")
 ```
 
-Load libraries
+Load libraries:
 
 ```{r, libraries}
 library(ggplot2)
@@ -58,7 +70,7 @@ library(readr)
 library(gridExtra)
 ```
 
-Download and read unemployment rate
+Download and read unemployment rate (UNRATE) from the US federal reserve:
 
 ```{r, import unemployment}
 fedunrate <- read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE")
@@ -74,21 +86,35 @@ economicsWithUnrate <- economics |>
 
 ## Overview
 
+Look at the dataset:
+
 ```{r, View}
 glimpse(economicsWithUnrate)
 View(economicsWithUnrate)
 ```
+
+Here you have the core data for each variable:
 
 ```{r, summary}
 summary(economicsWithUnrate$psavert)
 summary(economicsWithUnrate$UNRATE)
 ```
 
+```{r, correlation}
+economicsWithUnrate |>
+  arrange(date) |>
+  summarise(
+    same_month = cor(UNRATE, psavert, use = "complete.obs"),
+    one_month_later = cor(lag(UNRATE, 1), psavert, use = "complete.obs"),
+    two_months_later = cor(lag(UNRATE, 2), psavert, use = "complete.obs")
+  )
+```
+
 ## Plots for 5. Descriptive analytics
 
-Numbers
+generate the table for the min, max, median, mean and 1st/3rd quartiles and save it as *5summary.png*:
 
-```{r, Table}
+```{r, Table for mean median max min}
 results <- as.data.frame(do.call(
   rbind,
   lapply(economicsWithUnrate[c("psavert", "UNRATE")], summary)
@@ -101,7 +127,7 @@ tableImage <- gridExtra::tableGrob(results, rows = NULL)
 ggsave("5summary.png", tableImage, width = 8, height = 3, dpi = 300)
 ```
 
-Visuals
+Generate the boxplot, save it in a variable:
 
 ```{r, boxplots}
 exportBoxplot <- ggplot(economicsWithUnrate) +
@@ -130,7 +156,10 @@ exportBoxplot <- ggplot(economicsWithUnrate) +
   ) +
   theme_minimal() +
   theme(legend.position = "none")
+exportBoxplot
 ```
+
+Generate the line chart, save it in a variable:
 
 ```{r, line charts}
 exportLinechart <- ggplot(data = economicsWithUnrate, mapping = aes(x = date, y = "Unemployment rate and savings rate")) + 
@@ -142,12 +171,13 @@ exportLinechart <- ggplot(data = economicsWithUnrate, mapping = aes(x = date, y 
     values = c("Unemployment rate" = "red",
               "Personal saving rate" = "blue")
   )
+exportLinechart
 ```
 
-Export the plots as png
+Export the boxplots and line chart as png to your working directory as *5linechart.png* and *5boxplot.png*:
 
 ```{r, export plots}
-ggsave(filename = "5boxplot.png", plot = exportBoxplot, 
+ggsave(filename = "5boxplot.png", plot = exportBoxplot,
   width = 4,
   height = 5,
   units = "in",
@@ -162,20 +192,22 @@ ggsave(filename = "5linechart.png", plot = exportLinechart,
 
 ## Code for 7. analysis
 
-```{r, correlation}
-economicsWithUnrate |>
-  arrange(date) |>
-  summarise(
-    same_month = cor(UNRATE, psavert, use = "complete.obs"),
-    one_month_later = cor(lag(UNRATE, 1), psavert, use = "complete.obs"),
-    two_months_later = cor(lag(UNRATE, 2), psavert, use = "complete.obs")
-  )
-```
+Create the linear model, export a summary table of it as *7summary.png*:
 
 ```{r, basic linear model}
 model1 <- lm(psavert ~ UNRATE, data = economicsWithUnrate)
 summary(model1)
+
+resultsm1 <- as.data.frame(summary(model1)$coefficients)
+resultsm1$Variable <- rownames(resultsm1)
+resultsm1 <- resultsm1[c("Variable", setdiff(names(resultsm1), "Variable"))]
+rownames(resultsm1) <- NULL
+
+tableImage1 <- gridExtra::tableGrob(resultsm1, rows = NULL)
+ggsave("7summary.png", tableImage1, width = 8, height = 3, dpi = 300)
 ```
+
+Generate a plot of the data, save it in a variable:
 
 ```{r, linear model plot}
 exportModel1 <- ggplot(economicsWithUnrate, aes(x = UNRATE, y = psavert)) +
@@ -200,6 +232,8 @@ exportModel1 <- ggplot(economicsWithUnrate, aes(x = UNRATE, y = psavert)) +
   )
 exportModel1
 ```
+
+Export the plotted model as *7model1.png*:
 
 ```{r, export models}
 ggsave(filename = "7model1.png", plot = exportModel1, 
